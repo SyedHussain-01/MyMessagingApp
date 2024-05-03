@@ -1,5 +1,5 @@
 import Signup from './Signup';
 import Signin from './Login';
-import ChatScreen from './ChatScreen';
+import UserList from './UserList';
 
-export {Signup, Signin, ChatScreen};
+export {Signup, Signin, UserList};

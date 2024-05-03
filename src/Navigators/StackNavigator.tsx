@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Signup, Signin, ChatScreen} from '../Screens';
+import {Signup, Signin, UserList} from '../Screens';
 import {createStackNavigator} from '@react-navigation/stack';
 import Conversation from '../Screens/Conversation';
 import auth from '@react-native-firebase/auth';
@@ -33,7 +33,7 @@ const StackNavigator = () => {
         </>
       ) : (
         <>
-          <Stack.Screen name="Chat" component={ChatScreen} />
+          <Stack.Screen name="Chat" component={UserList} />
           <Stack.Screen name="Conversation" component={Conversation} />
         </>
       )}
