@@ -1,10 +1,11 @@
-import {StyleSheet, Text, View, TouchableOpacity, Image} from 'react-native';
+import {Text, View, Image} from 'react-native';
 import Input from '../Components/textInput';
 import {authenticate} from '../Functions/auth';
 import React, {useState} from 'react';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, Link} from '@react-navigation/native';
 import LoginImage from '../Assets/next.png';
 import Button from '../Components/button';
+import styles from '../Styles/authStyles';
 
 const Signup = () => {
   const navigation = useNavigation();
@@ -29,10 +30,6 @@ const Signup = () => {
     }
   };
 
-  const handleSignin = async () => {
-    navigation.navigate('Login');
-  };
-
   return (
     <View style={styles.container}>
       <View style={styles.loginHeaderSpace}>
@@ -55,50 +52,16 @@ const Signup = () => {
           value={state.password}
           onChange={text => setState({...state, password: text})}
         />
-        <Button text="Sign Up" />
+        <Button text="Sign Up" action={() => handleSignup()} />
       </View>
       <View style={styles.footerStyle}>
-        <Text>oqiw</Text>
+        <Text style={styles.footerLeft}>Already Registered?</Text>
+        <Link to={'/Login'} style={styles.footerRight}>
+          Sign In To Your Account
+        </Link>
       </View>
     </View>
   );
 };
 
 export default Signup;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    gap: 20,
-  },
-  loginHeaderSpace: {
-    flex: 2,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    flexDirection: 'column',
-    gap: 15,
-  },
-  loginInputSpace: {
-    flex: 3,
-    alignItems: 'center',
-    gap: 20,
-  },
-  iconStyle: {
-    width: '30%',
-    height: '30%',
-  },
-  loginHeaderText: {
-    fontSize: 25,
-    fontWeight: '500',
-    padding: 5,
-  },
-  footerStyle: {
-    position: 'absolute',
-    width: '100%',
-    bottom: 0,
-    padding: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'red',
-  },
-});

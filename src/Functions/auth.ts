@@ -1,7 +1,7 @@
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 
-export const authenticate = (email: string, password: string, name: string) => {
+export const authenticate = (email: any, password: any, name: any) => {
   try {
     auth()
       .createUserWithEmailAndPassword(email, password)
@@ -19,11 +19,10 @@ export const authenticate = (email: string, password: string, name: string) => {
         if (error.code === 'auth/email-already-in-use') {
           console.log('That email address is already in use!');
         }
-
         if (error.code === 'auth/invalid-email') {
           console.log('That email address is invalid!');
         }
-        console.error(error);
+        console.log('error');
       });
   } catch (error) {
     console.log(error);

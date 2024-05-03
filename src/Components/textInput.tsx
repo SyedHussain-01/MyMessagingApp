@@ -1,11 +1,10 @@
 import {StyleSheet, TextInput} from 'react-native';
 import React from 'react';
-import {NativeSyntheticEvent, TextInputChangeEventData} from 'react-native';
 
 interface InputProps {
   placeholder: string;
   value: string;
-  onChange: (e: NativeSyntheticEvent<TextInputChangeEventData>) => void;
+  onChange: (e: string) => void;
 }
 
 const Input: React.FC<InputProps> = ({placeholder, value, onChange}) => {
@@ -13,7 +12,7 @@ const Input: React.FC<InputProps> = ({placeholder, value, onChange}) => {
     <TextInput
       placeholder={placeholder}
       value={value}
-      onChange={onChange}
+      onChangeText={text => onChange(text)}
       style={styles.inputStyle}
       placeholderTextColor="#504742"
     />
