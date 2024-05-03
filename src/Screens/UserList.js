@@ -1,4 +1,11 @@
-import {StyleSheet, Text, View, Image, FlatList} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  FlatList,
+  TouchableOpacity,
+} from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {
   widthPercentageToDP as wp,
@@ -11,10 +18,13 @@ import {getAllUsers} from '../Functions/getUsers';
 const Item = ({element}) => {
   const navigation = useNavigation();
   return (
-    <Link to={'/Conversation'}>
-      <View
-        style={styles.userCard}
-        onMagicTap={() => navigation.navigate('Conversation')}>
+    <TouchableOpacity
+      onPressIn={() =>
+        navigation.navigate('Conversation', {
+          user_id: element.id,
+        })
+      }>
+      <View style={styles.userCard}>
         <View style={styles.profilePicture}>
           <Image source={Profile_avatar} style={styles.profileIconStyle} />
         </View>
@@ -23,7 +33,7 @@ const Item = ({element}) => {
           <Text style={styles.useremailtext}>{element._data?.email}</Text>
         </View>
       </View>
-    </Link>
+    </TouchableOpacity>
   );
 };
 
