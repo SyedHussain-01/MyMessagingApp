@@ -45,14 +45,14 @@ const ChatScreen = () => {
 
   return (
     <View>
-      {/* <TouchableOpacity onPressIn={handleLogout}>
+      <TouchableOpacity onPressIn={handleLogout} style={{paddingTop: 50}}>
         <Text>Logout</Text>
-      </TouchableOpacity> */}
-      <FlatList
+      </TouchableOpacity>
+      {/* <FlatList
         data={users}
         renderItem={renderItem}
         keyExtractor={item => item.id}
-      />
+      /> */}
     </View>
   );
 };

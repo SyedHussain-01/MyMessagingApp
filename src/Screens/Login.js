@@ -37,7 +37,7 @@ const Signin = () => {
     <View style={styles.container}>
       <View style={styles.loginHeaderSpace}>
         <Image source={LoginImage} style={styles.iconStyle} />
-        <Text style={styles.loginHeaderText}>SIGN UP</Text>
+        <Text style={styles.loginHeaderText}>SIGN IN</Text>
       </View>
       <View style={styles.loginInputSpace}>
         <Input

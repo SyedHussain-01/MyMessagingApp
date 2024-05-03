@@ -32,20 +32,14 @@ export const authenticate = (email: any, password: any, name: any) => {
 export const login = async (email: string, password: string) => {
   try {
     let result;
-    await firestore()
-      .collection('Users')
-      // Filter results
-      .where('email', '==', email)
-      .where('password', '==', password)
-      .get()
-      .then(querySnapshot => {
-        console.log('ql=> ', querySnapshot.docs.length);
-        if (querySnapshot.docs.length === 0) {
-          result = false;
-        } else {
-          console.log('user coming');
-          result = true;
-        }
+    await auth()
+      .signInWithEmailAndPassword(email, password)
+      .then(() => {
+        console.log('User Signed In Successfully');
+        result = true;
+      })
+      .catch(error => {
+        console.log('error====> ', error);
       });
     if (result === true) {
       return true;
