@@ -1,6 +1,18 @@
-import {StyleSheet, View, TouchableOpacity, Image} from 'react-native';
-import React, {useEffect, useState} from 'react';
-import {GiftedChat, InputToolbar} from 'react-native-gifted-chat';
+import {
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  Image,
+  TextInput,
+  Text,
+} from 'react-native';
+import React, {useEffect, useState, useCallback} from 'react';
+import {
+  GiftedChat,
+  InputToolbar,
+  Composer,
+  Send,
+} from 'react-native-gifted-chat';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -12,123 +24,141 @@ import SendIcon from '../Assets/send.png';
 
 const Conversation = ({route}) => {
   const {uid} = auth().currentUser;
+
   const [messages, setMessages] = useState([]);
+  const [textInput, setTextInput] = useState('');
 
   useEffect(() => {
-    getMessages();
+    setMessages([
+      {
+        _id: 1,
+        text: 'Hello developer',
+        createdAt: new Date(),
+        user: {
+          _id: 2,
+          name: 'React Native',
+          avatar: 'https://placeimg.com/140/140/any',
+        },
+      },
+      {
+        _id: 2,
+        text: 'Hello developer',
+        createdAt: new Date(),
+        user: {
+          _id: 1,
+          name: 'React Native',
+          avatar: 'https://placeimg.com/140/140/any',
+        },
+      },
+      {
+        _id: 3,
+        text: 'Hello developer',
+        createdAt: new Date(),
+        user: {
+          _id: 2,
+          name: 'React Native',
+          avatar: 'https://placeimg.com/140/140/any',
+        },
+      },
+      {
+        _id: 4,
+        text: 'Hello developer',
+        createdAt: new Date(),
+        user: {
+          _id: 1,
+          name: 'React Native',
+          avatar: 'https://placeimg.com/140/140/any',
+        },
+      },
+      {
+        _id: 5,
+        text: 'Hello developer',
+        createdAt: new Date(),
+        user: {
+          _id: 1,
+          name: 'React Native',
+          avatar: 'https://placeimg.com/140/140/any',
+        },
+      },
+    ]);
   }, []);
 
-  const sendMessage = async msg => {
-    try {
-      console.log(msg);
-      // const parse = await JSON.parse(msg.O);
-      // console.log('msgin convo=> ', parse);
-      // if (msg.length > 0 && msg[0].text) {
-      //   const messageText = messages[0].text; // Extract text from the first message
-      //   console.log(messageText); // Output the message text
-      //   // Logic to send message
-      // } else {
-      //   console.error('Invalid message format'); // Log an error if the message format is invalid
-      // }
-      //   console.log(
-      //     'data========>',
-      //     msg[0],
-      //     msg[0].text,
-      //     msg[0].createdAt,
-      //     uid,
-      //     route.params.user_id,
-      //   );
-      //   await firestore()
-      //     .collection('Messages')
-      //     .add({
-      //       text: msg[0].text,
-      //       created_at: msg[0].createdAt,
-      //       sender_id: uid,
-      //       reciever_id: route.params.user_id,
-      //     })
-      //     .then(() => {
-      //       console.log('message sent');
-      //     })
-      //     .catch(error => {
-      //       console.log('err========> ', error);
-      //     });
-    } catch (error) {
-      console.log(error);
-    }
+  const onSend = useCallback((messages = []) => {
+    setTextInput("")
+    setMessages(previousMessages =>
+      GiftedChat.append(previousMessages, messages),
+    );
+  }, []);
+
+  const renderSend = props => {
+    return (
+      <Send {...props} containerStyle={styles.iconContainerStyle} alwaysShowSend >
+        <Image source={SendIcon} style={styles.iconStyle} />
+      </Send>
+    );
   };
 
-  const getMessages = async () => {
-    try {
-      firestore()
-        .collection('Messages')
-        .get()
-        .then(querySnapshot => {
-          console.log('Total users: ', querySnapshot.size);
-
-          querySnapshot.forEach(documentSnapshot => {
-            const data = documentSnapshot.data();
-            setMessages([
-              ...messages,
-              {
-                _id: data.reciever_id,
-                text: data.text,
-                createdAt: new Date(),
-                user: {
-                  _id: data.sender_id,
-                },
-              },
-            ]);
-            console.log(
-              'User ID: ',
-              documentSnapshot.id,
-              documentSnapshot.data(),
-            );
-          });
-        });
-    } catch (error) {
-      console.log(error);
-    }
+  const renderInputToolbar = props => {
+    return (
+      <InputToolbar
+        {...props}
+        containerStyle={styles.inputContainer}
+        renderComposer={() => {
+          return (
+            <Composer
+              textInputStyle={styles.inputStyle}
+              onTextChanged={(text)=>setTextInput(text)}
+              text={textInput}
+            />
+          );
+        }}
+      />
+    );
   };
 
   return (
-    <GiftedChat
-      messages={messages}
-      onSend={sendMessage}
-      // onSend={msg => console.log({msg: msg[0]})}
-      user={{
-        _id: uid,
-      }}
-      // renderInputToolbar={props => <CustomInput {...props} />}
-      renderInputToolbar={props => (
-        <View>
-          <InputToolbar
-            {...props}
-            renderSend={() => {
-              return (
-                <TouchableOpacity
-                  style={styles.btnStyle}
-                  onPress={() => sendMessage(props)}>
-                  <Image source={SendIcon} style={styles.sendIcon} />
-                </TouchableOpacity>
-              );
-            }}
-          />
-        </View>
-      )}
-    />
+    <View style={styles.container}>
+      <GiftedChat
+        messages={messages}
+        user={{
+          _id: 1,
+        }}
+        text={textInput}
+        renderSend={renderSend}
+        renderInputToolbar={renderInputToolbar}
+        onSend={messages => onSend(messages)}
+      />
+    </View>
   );
 };
 
 export default Conversation;
 
 const styles = StyleSheet.create({
-  btnStyle: {
+  container: {
     flex: 1,
-    alignSelf: 'center',
-    alignItems: 'center',
+    paddingBottom: 20,
   },
-  sendIcon: {
-    width: wp(6),
+  inputContainer: {
+    color: 'black',
+    width: '90%',
+    marginLeft: wp(5),
+    marginRight: wp(5),
+    borderRadius: 24,
+    borderTopColor: 'transparent',
+  },
+  inputStyle: {
+    color: 'black',
+    backgroundColor: 'transparent',
+    padding: 5,
+  },
+  iconContainerStyle: {
+    width: wp(10),
+    justifyContent:'center',
+    alignItems:'center'
+  },
+  iconStyle: {
     height: hp(3),
+    width: wp(6),
   },
 });
