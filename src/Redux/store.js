@@ -1,11 +1,9 @@
 // store.js
-import { configureStore } from '@reduxjs/toolkit';
-import authReducer from './authSlice';
+import {configureStore} from '@reduxjs/toolkit';
 import firestoreReducer from './firestoreSlice';
 
 const store = configureStore({
   reducer: {
-    auth: authReducer,
     firestore: firestoreReducer,
   },
 });
