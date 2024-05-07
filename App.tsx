@@ -8,12 +8,16 @@
 import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import StackNavigator from './src/Navigators/StackNavigator';
+import {Provider} from 'react-redux';
+import store from './src/Redux/store';
 
 function App(): React.JSX.Element {
   return (
-    <NavigationContainer>
-      <StackNavigator />
-    </NavigationContainer>
+    <Provider store={store}>
+      <NavigationContainer>
+        <StackNavigator />
+      </NavigationContainer>
+    </Provider>
   );
 }
 

@@ -3,13 +3,19 @@ import firestore from '@react-native-firebase/firestore';
 
 export const authenticate = (email: any, password: any, name: any) => {
   try {
+    let user_id: string;
     auth()
       .createUserWithEmailAndPassword(email, password)
-      .then(() => {
+      .then((user) => {
+        user_id = user.user.uid
+        user.user.updateProfile({
+          displayName: name
+        })
         console.log('User account created & signed in!');
       })
       .then(() => {
         firestore().collection('Users').add({
+          _id: user_id,
           name,
           email,
           password,
@@ -30,6 +36,7 @@ export const authenticate = (email: any, password: any, name: any) => {
 };
 
 export const login = async (email: string, password: string) => {
+  console.log(email, password)
   try {
     let result;
     await auth()

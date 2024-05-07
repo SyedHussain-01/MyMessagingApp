@@ -12,19 +12,22 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import Profile_avatar from '../Assets/gamer.png';
-import {useNavigation, Link} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import {getAllUsers} from '../Functions/getUsers';
+import auth from '@react-native-firebase/auth';
 
 const Item = ({element}) => {
   const navigation = useNavigation();
   return (
-    <TouchableOpacity
-      onPressIn={() =>
-        navigation.navigate('Conversation', {
-          user_id: element.id,
-        })
-      }>
-      <View style={styles.userCard}>
+    <View>
+      <TouchableOpacity
+        style={styles.userCard}
+        onPress={() =>
+          navigation.navigate('Conversation', {
+            user_id: element._data._id,
+            user_name: element._data.name,
+          })
+        }>
         <View style={styles.profilePicture}>
           <Image source={Profile_avatar} style={styles.profileIconStyle} />
         </View>
@@ -32,12 +35,13 @@ const Item = ({element}) => {
           <Text style={styles.usernametext}>{element._data?.name}</Text>
           <Text style={styles.useremailtext}>{element._data?.email}</Text>
         </View>
-      </View>
-    </TouchableOpacity>
+      </TouchableOpacity>
+    </View>
   );
 };
 
 const UserList = () => {
+  const {uid} = auth().currentUser;
   const [users, setUsers] = useState([]);
   useEffect(() => {
     getUsers();
@@ -53,11 +57,13 @@ const UserList = () => {
   };
 
   return (
-    <View style={styles.container} elevation={5}>
+    <View style={styles.container}>
       <FlatList
         scrollEnable={true}
         data={users}
-        renderItem={({item}) => <Item element={item} />}
+        renderItem={({item}) => {
+          return <View>{item._data._id != uid && <Item element={item} />}</View>;
+        }}
         keyExtractor={item => item.id}
       />
     </View>
@@ -70,12 +76,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    paddingTop: hp(8),
+    paddingTop: hp(4),
   },
   userCard: {
     flexDirection: 'row',
-    marginTop: hp(2),
-    height: hp(20),
+    marginTop: hp(1),
+    height: hp(16),
     width: wp('100%'),
     shadowColor: '#000',
     backgroundColor: 'white',
@@ -99,11 +105,12 @@ const styles = StyleSheet.create({
     paddingLeft: wp(4),
   },
   profileIconStyle: {
-    width: wp(28),
-    height: hp(13),
+    width: wp(25),
+    height: hp(12),
   },
   usernametext: {
     fontSize: wp(5),
+    color: 'black',
   },
   useremailtext: {
     color: '#808080',

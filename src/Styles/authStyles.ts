@@ -42,6 +42,7 @@ const authstyles = StyleSheet.create({
   },
   footerLeft: {
     fontSize: wp(3),
+    color:'black'
   },
   footerRight: {
     fontSize: wp(3),

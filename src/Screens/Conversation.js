@@ -1,10 +1,7 @@
 import {
   StyleSheet,
   View,
-  TouchableOpacity,
   Image,
-  TextInput,
-  Text,
 } from 'react-native';
 import React, {useEffect, useState, useCallback} from 'react';
 import {
@@ -19,72 +16,73 @@ import {
 } from 'react-native-responsive-screen';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
-import CustomInput from '../Components/chatInput';
 import SendIcon from '../Assets/send.png';
 
 const Conversation = ({route}) => {
-  const {uid} = auth().currentUser;
+  const {uid, displayName} = auth().currentUser;
+  const {user_id, user_name} = route.params;
 
   const [messages, setMessages] = useState([]);
   const [textInput, setTextInput] = useState('');
 
   useEffect(() => {
-    setMessages([
-      {
-        _id: 1,
-        text: 'Hello developer',
-        createdAt: new Date(),
-        user: {
-          _id: 2,
-          name: 'React Native',
-          avatar: 'https://placeimg.com/140/140/any',
-        },
-      },
-      {
-        _id: 2,
-        text: 'Hello developer',
-        createdAt: new Date(),
-        user: {
-          _id: 1,
-          name: 'React Native',
-          avatar: 'https://placeimg.com/140/140/any',
-        },
-      },
-      {
-        _id: 3,
-        text: 'Hello developer',
-        createdAt: new Date(),
-        user: {
-          _id: 2,
-          name: 'React Native',
-          avatar: 'https://placeimg.com/140/140/any',
-        },
-      },
-      {
-        _id: 4,
-        text: 'Hello developer',
-        createdAt: new Date(),
-        user: {
-          _id: 1,
-          name: 'React Native',
-          avatar: 'https://placeimg.com/140/140/any',
-        },
-      },
-      {
-        _id: 5,
-        text: 'Hello developer',
-        createdAt: new Date(),
-        user: {
-          _id: 1,
-          name: 'React Native',
-          avatar: 'https://placeimg.com/140/140/any',
-        },
-      },
-    ]);
-  }, []);
+    const subscriber = getMessages();
+    return () => subscriber;
+  }, [user_id]);
 
-  const onSend = useCallback((messages = []) => {
-    setTextInput("")
+  const getMessages = () => {
+    let dataArr = [];
+    const subscriber = firestore()
+      .collection('Messages')
+      .where('party_ids', "array-contains-any", [uid, user_id])
+      .get()
+      .then(documentSnapshot => {
+        documentSnapshot.docs.forEach((item => {
+          const dateObj = item._data.createdAt;
+          const milliseconds = dateObj.nanoseconds / 1e6;
+          const date = new Date(dateObj.seconds * 1000 + milliseconds);
+          dataArr.push({
+            _id: item._data._id,
+            text: item._data.text,
+            createdAt: date,
+            user: {
+              _id: item._data.sender._id,
+              name: item._data.sender.name,
+            },
+            reciever: {
+              _id: item._data.reciever._id,
+              name: item._data.reciever.name,
+            }
+          })
+        }))
+        dataArr = dataArr.filter((item) => item.user._id === uid & item.reciever._id === user_id | item.user._id === user_id & item.reciever._id === uid )
+        setMessages(dataArr);
+      });
+
+      return subscriber;
+  }
+
+  const onSend = useCallback(async (messages = []) => {
+    firestore()
+      .collection('Messages')
+      .add({
+        _id: messages[0]._id,
+        text: messages[0].text,
+        createdAt: firestore.FieldValue.serverTimestamp(),
+        party_ids: [uid, user_id],
+        sender: {
+          _id: uid,
+          name: displayName,
+        },
+        reciever: {
+          _id: user_id,
+          name: user_name,
+        },
+      })
+      .then(() => {
+        console.log('Message sent!');
+        setTextInput('');
+      });
     setMessages(previousMessages =>
       GiftedChat.append(previousMessages, messages),
     );
@@ -92,7 +90,10 @@ const Conversation = ({route}) => {
 
   const renderSend = props => {
     return (
-      <Send {...props} containerStyle={styles.iconContainerStyle} alwaysShowSend >
+      <Send
+        {...props}
+        containerStyle={styles.iconContainerStyle}
+        alwaysShowSend>
         <Image source={SendIcon} style={styles.iconStyle} />
       </Send>
     );
@@ -107,7 +108,7 @@ const Conversation = ({route}) => {
           return (
             <Composer
               textInputStyle={styles.inputStyle}
-              onTextChanged={(text)=>setTextInput(text)}
+              onTextChanged={text => setTextInput(text)}
               text={textInput}
             />
           );
@@ -121,7 +122,7 @@ const Conversation = ({route}) => {
       <GiftedChat
         messages={messages}
         user={{
-          _id: 1,
+          _id: uid,
         }}
         text={textInput}
         renderSend={renderSend}
@@ -154,8 +155,8 @@ const styles = StyleSheet.create({
   },
   iconContainerStyle: {
     width: wp(10),
-    justifyContent:'center',
-    alignItems:'center'
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   iconStyle: {
     height: hp(3),
