@@ -1,4 +1,4 @@
-import React, {useLayoutEffect} from 'react';
+import React, {useEffect} from 'react';
 import firestore from '@react-native-firebase/firestore';
 import { useDispatch } from 'react-redux';
 import { setData } from '../Redux/firestoreSlice';
@@ -32,7 +32,7 @@ const useGetMessages = (
   user_id: string,
 ) => {
   const dispatch = useDispatch();
-  useLayoutEffect(() => {
+  useEffect(() => {
     const subscriber = firestore()
       .collection('Messages')
       .where('party_ids', 'array-contains-any', [uid, user_id])
@@ -68,7 +68,10 @@ const useGetMessages = (
         );
         dispatch(setData(filteredDataArr))
       });
-    return () => subscriber();
+    return () => {
+      subscriber();
+      dispatch(setData([]))
+    }
   }, [user_id]);
 };
 
