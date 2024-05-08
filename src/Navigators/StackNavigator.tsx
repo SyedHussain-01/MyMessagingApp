@@ -9,34 +9,14 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import SignoutIcon from '../Assets/arrow.png';
+import useAuth from '../Hooks/useAuth';
+import { signOut } from '../Functions/auth';
 
 const StackNavigator = () => {
   const Stack = createStackNavigator();
-  // Set an initializing state whilst Firebase connects
-  const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState(null);
 
-  // Handle user state changes
-  function onAuthStateChanged(myuser: any) {
-    setUser(myuser);
-    if (initializing) setInitializing(false);
-  }
-
-  useEffect(() => {
-    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-    return subscriber; // unsubscribe on unmount
-    //eslinst-disable-next-line
-  }, []);
-
-  const signOut = () => {
-    auth()
-      .signOut()
-      .then(() => {
-        console.log('successfully signed out');
-      });
-  };
-
-  if (initializing) return null;
+  useAuth(setUser);
 
   return (
     <Stack.Navigator

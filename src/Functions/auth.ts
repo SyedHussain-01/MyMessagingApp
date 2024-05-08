@@ -44,5 +44,7 @@ export const login = async (email: string, password: string) => {
 export const signOut = () => {
   auth()
     .signOut()
-    .then(() => console.log('User signed out!'));
+    .then(() => {
+      console.log('successfully signed out');
+    });
 };
