@@ -1,14 +1,10 @@
 import {StyleSheet, View} from 'react-native';
-import React, {useEffect, useState, useCallback} from 'react';
-import {GiftedChat, Bubble} from 'react-native-gifted-chat';
+import React, {useState, useCallback} from 'react';
+import {GiftedChat} from 'react-native-gifted-chat';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import {useSelector, useDispatch} from 'react-redux';
-import {launchImageLibrary} from 'react-native-image-picker';
-import uploadFile from '../Functions/fileUploader';
-import {setData} from '../Redux/firestoreSlice';
 import {guidGenerator} from '../Functions/messageIdGenerator';
-import {getMessages} from '../Functions/getMessages';
 import renderSend from '../Components/ChatComponents/RenderSend';
 import renderActions from '../Components/ChatComponents/RenderActions';
 import renderInputToolbar from '../Components/ChatComponents/RenderInputToolbar';
@@ -25,10 +21,11 @@ const Conversation = ({route}) => {
 
   const [messages, setMessages] = useState([]);
   const [textInput, setTextInput] = useState('');
+  const [typing, setTyping] = useState(false);
 
   useGetMessages(uid, user_id, setMessages);
 
-  const onSend = useCallback(async (messages = []) => {
+  const onSend = useCallback(async (msgs = []) => {
     firestore()
       .collection('Messages')
       .add({
@@ -43,14 +40,34 @@ const Conversation = ({route}) => {
           _id: user_id,
           name: user_name,
         },
-        text: messages[0].text,
+        text: msgs[0].text,
       })
       .then(msg => {
         console.log('Message sent!', msg);
         setTextInput('');
       });
+    // if (messages.length == 1) {
+    //   firestore()
+    //     .collection('Conversations')
+    //     .add({
+    //       _id: guidGenerator(),
+    //       party_ids: [uid, user_id],
+    //       sender: {
+    //         _id: uid,
+    //         name: displayName,
+    //         typing: false,
+    //       },
+    //       reciever: {
+    //         _id: user_id,
+    //         name: user_name,
+    //         typing: false,
+    //       },
+    //     });
+    // }
     // dispatch(setData(...data,))
   }, []);
+
+  const checkTyping = () => {};
 
   return (
     <View style={styles.container}>
@@ -72,11 +89,12 @@ const Conversation = ({route}) => {
             setTextInput,
           )
         }
+        isTyping={typing}
         renderActions={renderActions}
         renderSend={renderSend}
         renderMessageVideo={video => RenderMessageVideo(video)}
         renderInputToolbar={props =>
-          renderInputToolbar(props, textInput, setTextInput)
+          renderInputToolbar(props, textInput, setTextInput, setTyping)
         }
         onSend={messages => onSend(messages)}
       />

@@ -1,4 +1,4 @@
-import {StyleSheet, Image} from 'react-native';
+import {StyleSheet} from 'react-native';
 import {InputToolbar, Composer} from 'react-native-gifted-chat';
 import {
   widthPercentageToDP as wp,
@@ -9,6 +9,7 @@ const renderInputToolbar = (
   props: any,
   textInput: string,
   setTextInput: Function,
+  setTyping: Function,
 ) => {
   return (
     <InputToolbar
@@ -18,7 +19,14 @@ const renderInputToolbar = (
         return (
           <Composer
             textInputStyle={styles.inputStyle}
-            onTextChanged={text => setTextInput(text)}
+            onTextChanged={text => {
+              setTextInput(text);
+              if (text.length >= 1) {
+                setTyping(true);
+              } else {
+                setTyping(false);
+              }
+            }}
             text={textInput}
           />
         );
