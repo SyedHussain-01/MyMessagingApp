@@ -3,7 +3,7 @@ import {createSlice} from '@reduxjs/toolkit';
 const messageSlice = createSlice({
   name: 'messages',
   initialState: {
-    data: '',
+    data: [],
     loading: false,
     error: false,
   },

@@ -42,13 +42,16 @@ const Signin = () => {
       <View style={styles.loginInputSpace}>
         <Input
           placeholder="Email"
+          autoCapitalize="none"
           value={state.email}
-          onChange={text => setState({...state, email: text})}
+          onChangeInputText={text => setState({...state, email: text})}
         />
         <Input
           placeholder="Password"
           value={state.password}
-          onChange={text => setState({...state, password: text})}
+          autoCapitalize="none"
+          secureTextEntry={true}
+          onChangeInputText={text => setState({...state, password: text})}
         />
         <Button text="Login" action={handleSignin} />
       </View>

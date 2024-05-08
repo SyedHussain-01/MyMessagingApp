@@ -8,13 +8,13 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import SignoutIcon from '../Assets/arrow.png'
+import SignoutIcon from '../Assets/arrow.png';
 
 const StackNavigator = () => {
   const Stack = createStackNavigator();
   // Set an initializing state whilst Firebase connects
   const [initializing, setInitializing] = useState(true);
-  const [user, setUser] = useState();
+  const [user, setUser] = useState(null);
 
   // Handle user state changes
   function onAuthStateChanged(myuser: any) {
@@ -40,11 +40,17 @@ const StackNavigator = () => {
 
   return (
     <Stack.Navigator
-      screenOptions={{ headerShown: user ? true : false, headerRight: () => (
-        <TouchableOpacity onPress={signOut} style={{ marginRight:wp(3) }} >
-          <Image source={SignoutIcon} style={{ height:hp(3.5), width: wp(9), resizeMode:'contain' }} />
-        </TouchableOpacity>
-      ) }}>
+      screenOptions={{
+        headerShown: user ? true : false,
+        headerRight: () => (
+          <TouchableOpacity onPress={signOut} style={{marginRight: wp(3)}}>
+            <Image
+              source={SignoutIcon}
+              style={{height: hp(3.5), width: wp(9), resizeMode: 'contain'}}
+            />
+          </TouchableOpacity>
+        ),
+      }}>
       {!user ? (
         <>
           <Stack.Screen name="Signup" component={Signup} />

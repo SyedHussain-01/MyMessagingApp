@@ -40,17 +40,20 @@ const Signup = () => {
         <Input
           placeholder="Name"
           value={state.name}
-          onChange={text => setState({...state, name: text})}
+          onChangeInputText={text => setState({...state, name: text})}
+          autoCapitalize="none"
         />
         <Input
           placeholder="Email"
           value={state.email}
-          onChange={text => setState({...state, email: text})}
+          onChangeInputText={text => setState({...state, email: text})}
+          autoCapitalize="none"
         />
         <Input
           placeholder="Password"
           value={state.password}
-          onChange={text => setState({...state, password: text})}
+          onChangeInputText={text => setState({...state, password: text})}
+          autoCapitalize="none"
         />
         <Button text="Sign Up" action={() => handleSignup()} />
       </View>
