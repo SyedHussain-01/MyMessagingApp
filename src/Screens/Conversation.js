@@ -3,7 +3,7 @@ import React, {useState, useCallback} from 'react';
 import {GiftedChat} from 'react-native-gifted-chat';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
-import {useSelector, useDispatch} from 'react-redux';
+import {useSelector} from 'react-redux';
 import {guidGenerator} from '../Functions/messageIdGenerator';
 import renderSend from '../Components/ChatComponents/RenderSend';
 import renderActions from '../Components/ChatComponents/RenderActions';
@@ -16,14 +16,12 @@ const Conversation = ({route}) => {
   const {uid, displayName} = auth().currentUser;
   const {user_id, user_name} = route.params;
 
-  const dispatch = useDispatch();
   const data = useSelector(state => state.firestore);
 
-  const [messages, setMessages] = useState([]);
   const [textInput, setTextInput] = useState('');
   const [typing, setTyping] = useState(false);
 
-  useGetMessages(uid, user_id, setMessages);
+  useGetMessages(uid, user_id);
 
   const onSend = useCallback(async (msgs = []) => {
     firestore()
@@ -72,8 +70,7 @@ const Conversation = ({route}) => {
   return (
     <View style={styles.container}>
       <GiftedChat
-        messages={messages}
-        // messages={data?.data}
+        messages={data?.data}
         user={{
           _id: uid,
         }}
@@ -84,8 +81,6 @@ const Conversation = ({route}) => {
             displayName,
             user_id,
             user_name,
-            setMessages,
-            messages,
             setTextInput,
           )
         }

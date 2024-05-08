@@ -2,16 +2,18 @@ import {guidGenerator} from './messageIdGenerator';
 import {launchImageLibrary} from 'react-native-image-picker';
 import uploadFile from '../Functions/fileUploader';
 import firestore from '@react-native-firebase/firestore';
+import { useDispatch, useSelector } from 'react-redux';
+import { setData } from '../Redux/firestoreSlice';
 
 export const onPressAction = async (
   uid: string,
   displayName: string,
   user_id: string,
   user_name: string,
-  setMessages: Function,
-  messages: any[],
   setTextInput: Function,
 ) => {
+  const dispatch = useDispatch();
+  const data = useSelector((state:any) => state.firestore)
   try {
     const result: any = await launchImageLibrary({mediaType: 'mixed'});
     if (result && result.assets?.length != 0) {
@@ -43,8 +45,8 @@ export const onPressAction = async (
         .collection('Messages')
         .add(msgObj)
         .then(msg => {
-          setMessages([
-            ...messages,
+          dispatch(setData([
+            ...data.data,
             {
               _id: msgId,
               createdAt: new Date(),
@@ -62,7 +64,7 @@ export const onPressAction = async (
                 ? {video: fileUpload}
                 : {text: 'Unsupported Format'}),
             },
-          ]);
+          ]))
           setTextInput('');
         });
     }

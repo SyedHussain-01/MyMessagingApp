@@ -1,6 +1,7 @@
-import {View, Text} from 'react-native';
-import React, {useEffect} from 'react';
+import React, {useLayoutEffect} from 'react';
 import firestore from '@react-native-firebase/firestore';
+import { useDispatch } from 'react-redux';
+import { setData } from '../Redux/firestoreSlice';
 
 interface RecieverProps {
   _id: string;
@@ -29,9 +30,9 @@ interface ItemProps {
 const useGetMessages = (
   uid: string,
   user_id: string,
-  setMessages: Function,
 ) => {
-  useEffect(() => {
+  const dispatch = useDispatch();
+  useLayoutEffect(() => {
     const subscriber = firestore()
       .collection('Messages')
       .where('party_ids', 'array-contains-any', [uid, user_id])
@@ -65,10 +66,10 @@ const useGetMessages = (
             (item.user._id === uid && item.reciever._id === user_id) ||
             (item.user._id === user_id && item.reciever._id === uid),
         );
-        setMessages(filteredDataArr);
+        dispatch(setData(filteredDataArr))
       });
     return () => subscriber();
-  }, []);
+  }, [user_id]);
 };
 
 export default useGetMessages;
