@@ -57,7 +57,6 @@ const Phonecall = () => {
       setRemoteStream(event.stream);
     };
   };
-
   //this will be called from the iconon header which will create the connection
   const create = async () => {
     connecting.current = true;
