@@ -2,18 +2,18 @@ import {guidGenerator} from './messageIdGenerator';
 import {launchImageLibrary} from 'react-native-image-picker';
 import uploadFile from '../Functions/fileUploader';
 import firestore from '@react-native-firebase/firestore';
-import { useDispatch, useSelector } from 'react-redux';
-import { setData } from '../Redux/firestoreSlice';
+import {useDispatch, useSelector} from 'react-redux';
+import {setData} from '../Redux/firestoreSlice';
 
 export const onPressAction = async (
-  uid: string,
-  displayName: string,
-  user_id: string,
-  user_name: string,
-  setTextInput: Function,
+  uid: any,
+  displayName: any,
+  user_id: any,
+  user_name: any,
+  setTextInput: any,
+  dispatch: any,
+  data: any,
 ) => {
-  const dispatch = useDispatch();
-  const data = useSelector((state:any) => state.firestore)
   try {
     const result: any = await launchImageLibrary({mediaType: 'mixed'});
     if (result && result.assets?.length != 0) {
@@ -45,26 +45,28 @@ export const onPressAction = async (
         .collection('Messages')
         .add(msgObj)
         .then(msg => {
-          dispatch(setData([
-            ...data.data,
-            {
-              _id: msgId,
-              createdAt: new Date(),
-              user: {
-                _id: uid,
-                name: displayName,
+          dispatch(
+            setData([
+              ...data.data,
+              {
+                _id: msgId,
+                createdAt: new Date(),
+                user: {
+                  _id: uid,
+                  name: displayName,
+                },
+                reciever: {
+                  _id: user_id,
+                  name: user_name,
+                },
+                ...(imageTypes.includes(ext)
+                  ? {image: fileUpload}
+                  : videoTypes.includes(ext)
+                  ? {video: fileUpload}
+                  : {text: 'Unsupported Format'}),
               },
-              reciever: {
-                _id: user_id,
-                name: user_name,
-              },
-              ...(imageTypes.includes(ext)
-                ? {image: fileUpload}
-                : videoTypes.includes(ext)
-                ? {video: fileUpload}
-                : {text: 'Unsupported Format'}),
-            },
-          ]))
+            ]),
+          );
           setTextInput('');
         });
     }

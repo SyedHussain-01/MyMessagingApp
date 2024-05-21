@@ -3,7 +3,7 @@ import React, {useState, useCallback} from 'react';
 import {GiftedChat} from 'react-native-gifted-chat';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
-import {useSelector} from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
 import {guidGenerator} from '../Functions/messageIdGenerator';
 import renderSend from '../Components/ChatComponents/RenderSend';
 import renderActions from '../Components/ChatComponents/RenderActions';
@@ -17,9 +17,9 @@ const Conversation = ({route}) => {
   const {user_id, user_name} = route.params;
 
   const data = useSelector(state => state.firestore);
+  const dispatch = useDispatch();
 
   const [textInput, setTextInput] = useState('');
-  const [typing, setTyping] = useState(false);
 
   useGetMessages(uid, user_id);
 
@@ -44,28 +44,7 @@ const Conversation = ({route}) => {
         console.log('Message sent!', msg);
         setTextInput('');
       });
-    // if (messages.length == 1) {
-    //   firestore()
-    //     .collection('Conversations')
-    //     .add({
-    //       _id: guidGenerator(),
-    //       party_ids: [uid, user_id],
-    //       sender: {
-    //         _id: uid,
-    //         name: displayName,
-    //         typing: false,
-    //       },
-    //       reciever: {
-    //         _id: user_id,
-    //         name: user_name,
-    //         typing: false,
-    //       },
-    //     });
-    // }
-    // dispatch(setData(...data,))
   }, []);
-
-  const checkTyping = () => {};
 
   return (
     <View style={styles.container}>
@@ -82,14 +61,15 @@ const Conversation = ({route}) => {
             user_id,
             user_name,
             setTextInput,
+            dispatch,
+            data,
           )
         }
-        isTyping={typing}
         renderActions={renderActions}
         renderSend={renderSend}
         renderMessageVideo={video => RenderMessageVideo(video)}
         renderInputToolbar={props =>
-          renderInputToolbar(props, textInput, setTextInput, setTyping)
+          renderInputToolbar(props, textInput, setTextInput)
         }
         onSend={messages => onSend(messages)}
       />

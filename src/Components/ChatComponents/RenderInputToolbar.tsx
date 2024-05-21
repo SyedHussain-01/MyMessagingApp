@@ -9,7 +9,6 @@ const renderInputToolbar = (
   props: any,
   textInput: string,
   setTextInput: Function,
-  setTyping: Function,
 ) => {
   return (
     <InputToolbar
@@ -21,11 +20,6 @@ const renderInputToolbar = (
             textInputStyle={styles.inputStyle}
             onTextChanged={text => {
               setTextInput(text);
-              if (text.length >= 1) {
-                setTyping(true);
-              } else {
-                setTyping(false);
-              }
             }}
             text={textInput}
           />

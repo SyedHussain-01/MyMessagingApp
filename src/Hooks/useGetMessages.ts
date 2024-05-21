@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import firestore from '@react-native-firebase/firestore';
-import { useDispatch } from 'react-redux';
-import { setData } from '../Redux/firestoreSlice';
+import {useDispatch, useSelector} from 'react-redux';
+import {setData} from '../Redux/firestoreSlice';
 
 interface RecieverProps {
   _id: string;
@@ -27,11 +27,9 @@ interface ItemProps {
   _data: DataProps;
 }
 
-const useGetMessages = (
-  uid: string,
-  user_id: string,
-) => {
+const useGetMessages = (uid: string, user_id: string) => {
   const dispatch = useDispatch();
+  const data = useSelector((state: any) => state.firestore);
   useEffect(() => {
     const subscriber = firestore()
       .collection('Messages')
@@ -66,12 +64,12 @@ const useGetMessages = (
             (item.user._id === uid && item.reciever._id === user_id) ||
             (item.user._id === user_id && item.reciever._id === uid),
         );
-        dispatch(setData(filteredDataArr))
+        dispatch(setData(filteredDataArr));
       });
     return () => {
       subscriber();
-      dispatch(setData([]))
-    }
+      dispatch(setData([]));
+    };
   }, [user_id]);
 };
 
