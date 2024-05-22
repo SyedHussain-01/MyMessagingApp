@@ -1,8 +1,20 @@
+// 'http://192.168.0.40:3000/turn-credentials?username=testuser',
+// const configuration = {
+//   iceServers: [
+//     {
+//       urls: 'turn:192.168.0.40:3478',
+//       username: response.data.username,
+//       credential: response.data.password,
+//     },
+//   ],
+
 import {StyleSheet, Text, View, Image} from 'react-native';
 import PhoneRecieve from '../Assets/phone-call.png';
 import PhoneDecline from '../Assets/phone-decline.png';
+import Call from '../Assets/time-call.png';
 import {
   MediaStream,
+  RTCIceCandidate,
   RTCPeerConnection,
   RTCSessionDescription,
   RTCView,
@@ -13,8 +25,10 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import React, {useRef, useState} from 'react';
+import React, {useRef, useState, useEffect} from 'react';
+import firestore from '@react-native-firebase/firestore';
 import {TouchableOpacity} from 'react-native-gesture-handler';
+import axios from 'axios';
 
 const Phonecall = () => {
   const [localStream, setLocalStream] = useState(null);
@@ -23,49 +37,48 @@ const Phonecall = () => {
   const pc = useRef();
   const connecting = useRef(false);
 
-  const configuration = {iceServers: [{url: 'stun:stun.l.google.com:19302'}]};
-
-  const start = async () => {
-    console.log('start');
-    if (!localStream) {
-      try {
-        const s = await mediaDevices.getUserMedia({video: true});
-        setLocalStream(s);
-      } catch (e) {
-        console.error(e);
-      }
-    }
-  };
-  const stop = () => {
-    console.log('stop');
-    if (localStream) {
-      localStream.release();
-      setLocalStream(null);
-    }
-  };
-
   const setup = async () => {
-    pc.current = new RTCPeerConnection(configuration);
+    try {
+      const response = await axios.get(
+        'http://192.168.0.40:3000/turn-credentials?username=testuser',
+      );
+      const configuration = {
+        iceServers: [
+          {
+            urls: 'turn:192.168.0.40:3478',
+            username: response.data.username,
+            credential: response.data.password,
+          },
+        ],
+      };
+      console.log('TURN server connected');
+      pc.current = new RTCPeerConnection(configuration);
+      const stream = await getStream();
+      if (stream) {
+        setLocalStream(stream);
+        // pc.current.onaddstream(stream);
+        stream.getTracks().forEach(track => {
+          pc.current.addTrack(track, stream);
+        });
+      }
 
-    const stream = await getStream();
-    if (stream) {
-      setLocalStream(stream);
-      pc.current.onAddStream(stream);
+      pc.current.ontrack = event => {
+        console.log('event=================================> ', event);
+        setRemoteStream(event.streams[0]);
+      };
+    } catch (error) {
+      console.error('Error fetching TURN credentials:', error);
     }
-
-    pc.current.onAddStream = event => {
-      setRemoteStream(event.stream);
-    };
   };
+
   //this will be called from the iconon header which will create the connection
   const create = async () => {
     connecting.current = true;
-    await setup();
-
+    setup();
     // get document for call
-
+    const cRef = firestore().collection('meet').doc('chatId');
     // exchange ICE candidated b/w caller and callee
-
+    collectICECandidates(cRef, 'caller', 'callee');
     if (pc.current) {
       const offer = pc.current.createOffer();
       pc.current.setLocalDescription(offer);
@@ -74,9 +87,14 @@ const Phonecall = () => {
         type: offer.type,
         sdp: offer.sdp,
       };
-    }
 
-    //set cWithOffer in firestore in that document
+      //set cWithOffer in firestore in that document
+      try {
+        await firestore().collection('meet').doc('chatId').set(cWithOffer);
+      } catch (error) {
+        console.log('error==============> ', error);
+      }
+    }
   };
   const join = async () => {
     connecting.current = true;
@@ -84,13 +102,15 @@ const Phonecall = () => {
     setGreetingCall(false);
 
     // get doc
+    const cRef = firestore().collection('meet').doc('chatId');
 
     //get doc from that offer
-    const offer = {};
+    const offer = (await cRef.get()).data()?.offer;
 
     if (offer) {
       await setup();
       //collect candidates
+      collectICECandidates(cRef, 'callee', 'caller');
       if (pc.current) {
         pc.current.setRemoteDescription(new RTCSessionDescription(offer));
         const answer = await pc.current.createAnswer();
@@ -103,6 +123,7 @@ const Phonecall = () => {
           },
         };
         //add cWithAnswer in doc
+        cRef.update(cWithAnswer);
       }
     }
   };
@@ -113,6 +134,25 @@ const Phonecall = () => {
     if (pc.current) {
       pc.current.close();
     }
+  };
+  const collectICECandidates = (cRef, localName, remoteName) => {
+    const candidateCollection = cRef.collection(localName);
+    if (pc.current) {
+      pc.current.onicecandidate = event => {
+        if (event.candidate) {
+          candidateCollection.add(event.candidate);
+        }
+      };
+    }
+
+    cRef.collection(remoteName).onSnapshot(snapshot => {
+      snapshot.docChanges().forEach(change => {
+        if (change.type === 'added') {
+          const candidate = new RTCIceCandidate(change.doc.data());
+          pc.current.addIceCandidate(candidate);
+        }
+      });
+    });
   };
 
   if (greetingCall) {
@@ -132,13 +172,16 @@ const Phonecall = () => {
       {localStream && remoteStream && (
         // hangup localStream remoteStream will be used in RTCView
         <>
-          <RTCView streamURL={remoteStream.toURL()} style={styles.video} />
-          <RTCView streamURL={localStream.toURL()} style={styles.video} />
+          <RTCView streamURL={remoteStream.toURL()} style={styles.localvideo} />
+          <RTCView streamURL={localStream.toURL()} style={styles.remotevideo} />
         </>
       )}
       <View style={styles.footer}>
         <TouchableOpacity onPress={join}>
           <Image source={PhoneRecieve} style={styles.icons} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={create}>
+          <Image source={Call} style={styles.icons} />
         </TouchableOpacity>
         <TouchableOpacity onPress={hangup}>
           <Image source={PhoneDecline} style={styles.icons} />
@@ -170,5 +213,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '100%',
     height: '100%',
+  },
+  videoremote: {
+    width: '100%',
+    height: '50%',
+  },
+  videolocal: {
+    width: '100%',
+    height: '50%',
   },
 });

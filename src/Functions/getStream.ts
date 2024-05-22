@@ -2,10 +2,8 @@ import {mediaDevices} from 'react-native-webrtc';
 
 const getStream = async () => {
   try {
-  } catch (error) {
     let isFront = true;
     const sourceInfos: any = await mediaDevices.enumerateDevices();
-    console.log(sourceInfos);
     let videoSourceId;
     for (let i = 0; i < sourceInfos.length; i++) {
       const source = sourceInfos[i];
@@ -30,6 +28,8 @@ const getStream = async () => {
       return stream;
     }
     return null;
+  } catch (error) {
+    console.log('errrrr===> ', error);
   }
 };
 
