@@ -48,31 +48,33 @@ const Conversation = ({route}) => {
 
   return (
     <View style={styles.container}>
-      <GiftedChat
-        messages={data?.data}
-        user={{
-          _id: uid,
-        }}
-        text={textInput}
-        onPressActionButton={() =>
-          onPressAction(
-            uid,
-            displayName,
-            user_id,
-            user_name,
-            setTextInput,
-            dispatch,
-            data,
-          )
-        }
-        renderActions={renderActions}
-        renderSend={renderSend}
-        renderMessageVideo={video => RenderMessageVideo(video)}
-        renderInputToolbar={props =>
-          renderInputToolbar(props, textInput, setTextInput)
-        }
-        onSend={messages => onSend(messages)}
-      />
+      {data.data ? (
+        <GiftedChat
+          messages={data?.data}
+          user={{
+            _id: uid,
+          }}
+          text={textInput}
+          onPressActionButton={() =>
+            onPressAction(
+              uid,
+              displayName,
+              user_id,
+              user_name,
+              setTextInput,
+              dispatch,
+              data,
+            )
+          }
+          renderActions={renderActions}
+          renderSend={renderSend}
+          renderMessageVideo={video => RenderMessageVideo(video)}
+          renderInputToolbar={props =>
+            renderInputToolbar(props, textInput, setTextInput)
+          }
+          onSend={messages => onSend(messages)}
+        />
+      ) : null}
     </View>
   );
 };

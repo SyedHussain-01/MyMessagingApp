@@ -37,28 +37,29 @@ const useGetMessages = (uid: string, user_id: string) => {
       .orderBy('createdAt', 'desc')
       .onSnapshot((documentSnapshot: any) => {
         let dataArr: any[] = [];
-        documentSnapshot.docs.forEach((item: ItemProps) => {
-          if (item._data.createdAt != null) {
-            const dateObj = item._data.createdAt;
-            const milliseconds = dateObj?.nanoseconds / 1e6;
-            const date = new Date(dateObj?.seconds * 1000 + milliseconds);
-            dataArr.push({
-              _id: item._data._id,
-              createdAt: date.toISOString(),
-              user: {
-                _id: item._data.sender._id,
-                name: item._data.sender.name,
-              },
-              reciever: {
-                _id: item._data.reciever._id,
-                name: item._data.reciever.name,
-              },
-              ...(item._data.text == undefined
-                ? {image: item._data.image, video: item._data.video}
-                : {text: item._data.text}),
-            });
-          }
-        });
+        documentSnapshot &&
+          documentSnapshot.docs.forEach((item: ItemProps) => {
+            if (item._data.createdAt != null) {
+              const dateObj = item._data.createdAt;
+              const milliseconds = dateObj?.nanoseconds / 1e6;
+              const date = new Date(dateObj?.seconds * 1000 + milliseconds);
+              dataArr.push({
+                _id: item._data._id,
+                createdAt: date.toISOString(),
+                user: {
+                  _id: item._data.sender._id,
+                  name: item._data.sender.name,
+                },
+                reciever: {
+                  _id: item._data.reciever._id,
+                  name: item._data.reciever.name,
+                },
+                ...(item._data.text == undefined
+                  ? {image: item._data.image, video: item._data.video}
+                  : {text: item._data.text}),
+              });
+            }
+          });
         const filteredDataArr = dataArr.filter(
           item =>
             (item.user._id === uid && item.reciever._id === user_id) ||

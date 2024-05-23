@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "870441594474",
-    "project_id": "my-messaging-app-834e3",
-    "storage_bucket": "my-messaging-app-834e3.appspot.com"
+    "project_number": "625275188039",
+    "project_id": "videocalling-ff8b5",
+    "storage_bucket": "videocalling-ff8b5.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:870441594474:android:6c7a2ba27e0c80df48e413",
+        "mobilesdk_app_id": "1:625275188039:android:b4f259de51c31323da1262",
         "android_client_info": {
           "package_name": "com.mymessaging"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAtyYIdRINvguvbmRx3vwAsoKH3CHHHW00"
+          "current_key": "AIzaSyDY_D-bh5q_lEvawvvgKt_UreY8fLCTeyQ"
         }
       ],
       "services": {
