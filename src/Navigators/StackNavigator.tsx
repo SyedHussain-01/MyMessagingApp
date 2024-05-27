@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Signup, Signin, UserList, Phonecall} from '../Screens';
+import {Signup, Signin, UserList, Phonecall, Calling} from '../Screens';
 import {useNavigationState, useNavigation} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import Conversation from '../Screens/Conversation';
@@ -60,7 +60,8 @@ const StackNavigator = () => {
         <>
           <Stack.Screen name="Chat" component={UserList} />
           <Stack.Screen name="Conversation" component={Conversation} />
-          <Stack.Screen name="Phonecall" component={Phonecall} />
+          {/* <Stack.Screen name="Phonecall" component={Phonecall} /> */}
+          <Stack.Screen name="Phonecall" component={Calling} />
         </>
       )}
     </Stack.Navigator>
